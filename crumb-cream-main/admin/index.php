@@ -25,7 +25,7 @@ if ($pdo === null) {
     $dbError = 'Could not connect to the database. Check config/database.php and make sure MySQL is running.';
 } else {
     // ---- Handle status update ----
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id']) && isset($_POST['new_status'])) {
         $orderId  = (int) ($_POST['order_id'] ?? 0);
         $newStatus = $_POST['new_status'] ?? '';
         $validStatuses = ['new', 'contacted', 'completed', 'cancelled'];
@@ -225,6 +225,7 @@ $statusLabels = ['new' => 'New', 'contacted' => 'Contacted', 'completed' => 'Com
                                     <th>Customer</th>
                                     <th>Contact</th>
                                     <th>Size</th>
+                                    <th>Flavor</th>
                                     <th>Qty</th>
                                     <th>Message</th>
                                     <th>Amount</th>
@@ -235,7 +236,7 @@ $statusLabels = ['new' => 'New', 'contacted' => 'Contacted', 'completed' => 'Com
                             </thead>
                             <tbody>
                                 <?php if (empty($orders)): ?>
-                                    <tr><td colspan="10" class="empty-row">No orders yet.</td></tr>
+                                    <tr><td colspan="11" class="empty-row">No orders yet.</td></tr>
                                 <?php endif; ?>
                                 <?php
                                 $paymentLabels = ['unpaid' => 'Unpaid', 'paid' => 'Paid', 'expired' => 'Expired', 'failed' => 'Failed'];
@@ -246,6 +247,7 @@ $statusLabels = ['new' => 'New', 'contacted' => 'Contacted', 'completed' => 'Com
                                         <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                                         <td><?php echo htmlspecialchars($order['contact_info']); ?></td>
                                         <td><?php echo htmlspecialchars($order['size']); ?></td>
+                                        <td><?php echo htmlspecialchars($order['flavor'] ?? '—'); ?></td>
                                         <td><?php echo (int) $order['quantity']; ?></td>
                                         <td class="msg-cell"><?php echo $order['message'] ? htmlspecialchars($order['message']) : '<span class="muted">—</span>'; ?></td>
                                         <td><?php echo $order['amount'] !== null ? '₱' . number_format((float) $order['amount'], 2) : '<span class="muted">—</span>'; ?></td>
@@ -273,8 +275,8 @@ $statusLabels = ['new' => 'New', 'contacted' => 'Contacted', 'completed' => 'Com
         </main>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" integrity="sha512-6O8H4wOjEIz9DPFwvWEubZfSPS6bBFEllRtPjA/2wnpaKcx4EWEO/Zt5CGwe4bC3PBvPCK1heJ4YlbXjnkZzvA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    
+<script>
         var CHART_COLORS = {
             caramel: '#C1873F',
             caramelDark: '#9C6428',
